@@ -1,0 +1,1035 @@
+<?php
+session_start();
+$logged_in = isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nursing Records System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #f2f8ff;
+            --card: #ffffff;
+            --accent: #87CEEB; /* SKY BLUE */
+            --accent-soft: #e6f5ff;
+            --text-main: #1E4957;
+            --border: #DDE3E0;
+            --danger: #D9655B;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+        }
+
+        .page-wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px 26px 26px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        .login-card {
+            max-width: 380px;
+            margin: 60px auto 30px;
+        }
+
+        h1, h2, h3 {
+            margin: 0;
+        }
+
+        .login-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .login-sub {
+            font-size: 12px;
+            color: #6B858D;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 12px;
+        }
+
+        .field label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .field small {
+            font-size: 11px;
+            color: #78939A;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="number"],
+        input[type="date"],
+        input[type="time"],
+        input[type="datetime-local"],
+        textarea,
+        select {
+            padding: 7px 9px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            font-size: 13px;
+            background: #ffffff;
+            min-height: 34px;
+            resize: vertical;
+        }
+
+        textarea {
+            min-height: 60px;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(135, 206, 235, 0.25);
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            border-radius: 999px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: #F4FBFF;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--accent-soft);
+        }
+
+        .hint {
+            font-size: 11px;
+            color: #8CA0A6;
+            margin-top: 6px;
+            text-align: center;
+        }
+
+        /* APP HEADER + TABS */
+
+        .app-header {
+            margin-bottom: 16px;
+        }
+
+        .app-header h2 {
+            margin: 0 0 4px;
+            font-weight: 600;
+        }
+
+        .app-header p {
+            margin: 0;
+            font-size: 13px;
+            color: #55727A;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            border: 1px solid var(--border);
+            background: #F4FBFF;
+            color: var(--text-main);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+        }
+
+        .step-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: #cfeeff;
+            color: #24506b;
+            font-weight: 500;
+        }
+
+        .tab-section {
+            display: none;
+        }
+
+        .tab-section.active {
+            display: block;
+        }
+
+        .section {
+            margin-bottom: 22px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .section:last-of-type {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin: 0 0 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: "";
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+        }
+
+        .section-sub {
+            font-size: 12px;
+            color: #6B858D;
+            margin: 0 0 18px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 12px 18px;
+        }
+
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .badge-soft {
+            display: inline-block;
+            padding: 2px 8px;
+            font-size: 11px;
+            border-radius: 999px;
+            background: #e6f5ff;
+            color: #24506b;
+        }
+
+        /* Smaller grid utility for vitals/meds */
+        .grid-auto-220 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px 18px;
+        }
+
+        .grid-auto-190 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 12px 18px;
+        }
+
+        .med-card {
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #F8FCFF;
+            padding: 14px 16px 16px;
+            margin-bottom: 10px;
+        }
+
+        .med-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .med-label {
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .med-label-pill {
+            background: #cfeeff;
+            border-radius: 999px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        #app-wrapper { display: none; }
+
+        @media (max-width: 600px) {
+            body { padding: 16px; }
+            .card { padding: 18px 16px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+    <!-- ========== LOGIN CARD ========== -->
+    <div id="login-card" class="card login-card">
+        <h1 class="login-title">Nursing Records Login</h1>
+        <p class="login-sub">Authorized staff only. Please sign in to continue.</p>
+
+        <form id="login-form">
+            <div class="field">
+                <label for="username">Username</label>
+                <input id="username" type="text" required>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input id="password" type="password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Log In</button>
+            <p class="hint">
+                Demo credentials: <strong>nurse</strong> / <strong>1234</strong>
+            </p>
+        </form>
+    </div>
+
+    <!-- ========== MAIN APP ========== -->
+    <div id="app-wrapper">
+        <header class="app-header">
+            <h2>Nursing Patient Record</h2>
+            <p>Admission • Vital Signs • Medication Log — all in one system.</p>
+        </header>
+
+        <!-- TABS -->
+        <div class="tabs">
+            <button class="tab-btn active" data-target="admission-section">
+                <span class="step-badge">Step 1</span> Admission
+            </button>
+            <button class="tab-btn" data-target="vitals-section">
+                <span class="step-badge">Step 2</span> Vital Signs
+            </button>
+            <button class="tab-btn" data-target="meds-section">
+                <span class="step-badge">Step 3</span> Medication Log
+            </button>
+        </div>
+
+        <!-- ========== ADMISSION CARD ========== -->
+        <div class="card">
+            <section id="admission-section" class="tab-section active">
+                <h3 class="section-title">Patient Admission</h3>
+                <p class="section-sub">
+                    Fill out the patient’s admission details. After saving, you can proceed to Vital Signs.
+                </p>
+
+                <form id="admission-form" method="POST" action="save_record.php">
+                    <input type="hidden" name="form_type" value="admission">
+
+                    <!-- PATIENT IDENTIFICATION -->
+                    <div class="section">
+                        <h3 class="section-title">Patient Identification</h3>
+                        <div class="grid-auto-220">
+                            <div class="field">
+                                <label>Patient ID / Hospital No.</label>
+                                <input name="patient_id" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label>Last Name</label>
+                                <input name="last_name" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label>First Name</label>
+                                <input name="first_name" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label>Middle Name</label>
+                                <input name="middle_name" type="text">
+                            </div>
+                            <div class="field">
+                                <label>Sex</label>
+                                <select name="sex" required>
+                                    <option value="">-- Select --</option>
+                                    <option value="F">Female</option>
+                                    <option value="M">Male</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="dob">Date of Birth</label>
+                                <input id="dob" name="dob" type="date" required>
+                            </div>
+                            <div class="field">
+                                <label for="age">Age</label>
+                                <input id="age" name="age" type="number" min="0" placeholder="auto" readonly required>
+                            </div>
+                            <div class="field">
+                                <label>Civil Status</label>
+                                <select name="civil_status" required>
+                                    <option value="">-- Select --</option>
+                                    <option>Single</option>
+                                    <option>Married</option>
+                                    <option>Widowed</option>
+                                    <option>Separated</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="field" style="grid-column:1/-1;">
+                                <label>Present Address</label>
+                                <input name="address" type="text" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- EMERGENCY CONTACT -->
+                    <div class="section">
+                        <h3 class="section-title">Emergency Contact</h3>
+                        <div class="grid-auto-220">
+                            <div class="field">
+                                <label>Contact Person</label>
+                                <input name="ec_name" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label>Relationship to Patient</label>
+                                <input name="ec_relation" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label>Contact Number</label>
+                                <input name="ec_phone" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label>Address (optional)</label>
+                                <input name="ec_address" type="text">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ADMISSION DETAILS -->
+                    <div class="section">
+                        <h3 class="section-title">Admission Details</h3>
+                        <div class="grid-auto-220">
+                            <div class="field">
+                                <label>Date of Admission</label>
+                                <input name="admission_date" type="date" required>
+                            </div>
+                            <div class="field">
+                                <label>Time of Admission</label>
+                                <input name="admission_time" type="time" required>
+                            </div>
+                            <div class="field">
+                                <label>Ward / Unit</label>
+                                <input name="ward" type="text" placeholder="e.g. Med-Surg, OB Ward" required>
+                            </div>
+                            <div class="field">
+                                <label>Room / Bed No.</label>
+                                <input name="room_bed" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label>Type of Admission</label>
+                                <select name="admission_type" required>
+                                    <option value="">-- Select --</option>
+                                    <option value="ER">ER</option>
+                                    <option value="OPD">OPD</option>
+                                    <option value="Direct">Direct Admission</option>
+                                    <option value="Transfer">Transfer from other facility</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label>Admitting Physician</label>
+                                <input name="physician" type="text" required>
+                            </div>
+                            <div class="field" style="grid-column:1/-1;">
+                                <label>Chief Complaint</label>
+                                <input name="chief_complaint" type="text" placeholder="Short description of main complaint" required>
+                            </div>
+                            <div class="field" style="grid-column:1/-1;">
+                                <label>Admitting Diagnosis</label>
+                                <input name="admitting_diagnosis" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label>Trauma Case?</label>
+                                <select id="trauma_case" name="trauma_case" required>
+                                    <option value="0">No</option>
+                                    <option value="1">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Trauma details -->
+                        <div id="trauma-details" style="margin-top:10px; display:none; border-radius:8px;border:1px solid var(--border);padding:10px 12px;background:#F8FCFF;">
+                            <div class="field">
+                                <label>Type of Trauma (check all that apply)</label>
+                                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:6px 14px;">
+                                    <label><input type="checkbox" name="trauma_types[]" value="RTA"> Road Traffic Accident (RTA)</label>
+                                    <label><input type="checkbox" name="trauma_types[]" value="Fall from height"> Fall from height</label>
+                                    <label><input type="checkbox" name="trauma_types[]" value="Fall on same level"> Fall on same level</label>
+                                    <label><input type="checkbox" name="trauma_types[]" value="Blunt trauma"> Blunt trauma</label>
+                                    <label><input type="checkbox" name="trauma_types[]" value="Penetrating trauma"> Penetrating (stab / gunshot)</label>
+                                    <label><input type="checkbox" name="trauma_types[]" value="Burn"> Burn</label>
+                                    <label><input type="checkbox" name="trauma_types[]" value="Crush injury"> Crush injury</label>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label>Others (specify)</label>
+                                <input name="trauma_other" type="text" placeholder="e.g. drowning, electrical injury">
+                            </div>
+                            <div class="field">
+                                <label>Mechanism of Injury</label>
+                                <input name="trauma_mech" type="text" placeholder="Brief mechanism">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MEDICAL BACKGROUND -->
+                    <div class="section">
+                        <h3 class="section-title">Medical Background</h3>
+                        <div class="grid-auto-220">
+                            <div class="field">
+                                <label>Allergies</label>
+                                <input name="allergies" type="text" placeholder="e.g. NKDA, penicillin allergy" required>
+                            </div>
+                            <div class="field">
+                                <label>Significant Medical History</label>
+                                <input name="medical_history" type="text" placeholder="e.g. HTN, DM, asthma, previous stroke" required>
+                            </div>
+                            <div class="field" style="grid-column:1/-1;">
+                                <label>Current Medications / Home Meds</label>
+                                <input name="home_meds" type="text" placeholder="List regular medications, dose, frequency">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GUARDIAN & INSURANCE -->
+                    <div class="section">
+                        <h3 class="section-title">Guardian & Insurance</h3>
+                        <div class="grid-auto-220">
+                            <div class="field">
+                                <label>Guardian / Companion Name</label>
+                                <input name="guardian_name" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label>Guardian Contact Number</label>
+                                <input name="guardian_phone" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label>PhilHealth / Insurance Details (if applicable)</label>
+                                <input name="philhealth" type="text" placeholder="e.g. PhilHealth no., HMO">
+                            </div>
+                            <div class="field">
+                                <label>Primary / Assigned Nurse (optional)</label>
+                                <input name="primary_nurse" type="text" placeholder="Nurse's name / initials">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            Save &amp; Go to Vital Signs
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <!-- ========== VITALS CARD ========== -->
+        <div class="card">
+            <section id="vitals-section" class="tab-section">
+                <h3 class="section-title">Vital Signs Record</h3>
+                <p class="section-sub">
+                    Record the patient’s baseline vital signs at a specific date and time.
+                </p>
+
+                <form id="vitals-form" method="POST" action="save_record.php">
+                    <input type="hidden" name="form_type" value="vitals">
+
+                    <!-- PATIENT INFO -->
+                    <div class="section">
+                        <h3 class="section-title">Patient Information</h3>
+                        <div class="grid-auto-220">
+                            <div class="field">
+                                <label for="vs_patient_name">Patient Name</label>
+                                <input id="vs_patient_name" name="vs_patient_name" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label for="vs_patient_id">Patient ID / Hospital No.</label>
+                                <input id="vs_patient_id" name="vs_patient_id" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label for="vs_age">Age</label>
+                                <input id="vs_age" name="vs_age" type="number" min="0" required>
+                            </div>
+                            <div class="field">
+                                <label for="vs_sex">Sex</label>
+                                <select id="vs_sex" name="vs_sex" required>
+                                    <option value="">--Select--</option>
+                                    <option value="F">Female</option>
+                                    <option value="M">Male</option>
+                                    <option value="LGBTQ++">LGBTQ++</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="vs_date">Date</label>
+                                <input id="vs_date" name="vs_date" type="date" required>
+                            </div>
+                            <div class="field">
+                                <label for="vs_time">Time Taken</label>
+                                <input id="vs_time" name="vs_time" type="time" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CORE VITAL SIGNS -->
+                    <div class="section">
+                        <h3 class="section-title">Core Vital Signs</h3>
+                        <div class="grid-auto-190">
+                            <div class="field">
+                                <label for="temp">Temperature (°C)</label>
+                                <input id="temp" name="temp" type="number" step="0.1" placeholder="e.g. 37.2" required>
+                            </div>
+                            <div class="field">
+                                <label for="pulse">Pulse Rate (bpm)</label>
+                                <input id="pulse" name="pulse" type="number" min="0" placeholder="e.g. 82" required>
+                            </div>
+                            <div class="field">
+                                <label for="resp">Respiratory Rate (bpm)</label>
+                                <input id="resp" name="resp" type="number" min="0" placeholder="e.g. 20" required>
+                            </div>
+                            <div class="field">
+                                <label for="bp">Blood Pressure (mmHg)</label>
+                                <input id="bp" name="bp" type="text" placeholder="e.g. 120/80" required>
+                            </div>
+                            <div class="field">
+                                <label for="spo2">SpO₂ (%)</label>
+                                <input id="spo2" name="spo2" type="number" min="0" max="100" placeholder="e.g. 98" required>
+                            </div>
+                            <div class="field">
+                                <label for="pain">Pain Score (0–10)</label>
+                                <input id="pain" name="pain" type="number" min="0" max="10" placeholder="e.g. 4">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GCS -->
+                    <div class="section">
+                        <h3 class="section-title">Glasgow Coma Scale (GCS)</h3>
+                        <div class="grid-auto-190">
+                            <div class="field">
+                                <label for="gcs_e">Eye (E)</label>
+                                <input id="gcs_e" name="gcs_e" type="number" min="1" max="4" placeholder="1–4">
+                            </div>
+                            <div class="field">
+                                <label for="gcs_v">Verbal (V)</label>
+                                <input id="gcs_v" name="gcs_v" type="number" min="1" max="5" placeholder="1–5">
+                            </div>
+                            <div class="field">
+                                <label for="gcs_m">Motor (M)</label>
+                                <input id="gcs_m" name="gcs_m" type="number" min="1" max="6" placeholder="1–6">
+                            </div>
+                            <div class="field">
+                                <label for="gcs_total">GCS Total</label>
+                                <input id="gcs_total" name="gcs_total" type="number" min="3" max="15" placeholder="auto" readonly>
+                                <small>Auto-calculated from E+V+M</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BMI -->
+                    <div class="section">
+                        <h3 class="section-title">Anthropometrics &amp; BMI</h3>
+                        <div class="grid-auto-190">
+                            <div class="field">
+                                <label for="weight">Weight (kg)</label>
+                                <input id="weight" name="weight" type="number" step="0.1" placeholder="e.g. 60.5">
+                            </div>
+                            <div class="field">
+                                <label for="height">Height (cm)</label>
+                                <input id="height" name="height" type="number" step="0.1" placeholder="e.g. 160">
+                            </div>
+                            <div class="field">
+                                <label for="bmi">BMI</label>
+                                <input id="bmi" name="bmi" type="text" readonly placeholder="auto">
+                                <small>Calculated from weight and height</small>
+                            </div>
+                            <div class="field">
+                                <label for="bmi_category">BMI Category</label>
+                                <input id="bmi_category" name="bmi_category" type="text" readonly placeholder="auto">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NURSE & NOTES -->
+                    <div class="section">
+                        <h3 class="section-title">Nurse &amp; Clinical Notes</h3>
+                        <div class="grid-2">
+                            <div class="field">
+                                <label for="nurse">Taken By</label>
+                                <input id="nurse" name="nurse" type="text" placeholder="Nurse's name / initials" required>
+                            </div>
+                            <div class="field">
+                                <label for="notes">Clinical Notes / Remarks</label>
+                                <input id="notes" name="notes" type="text" placeholder="Relevant observations, interventions, or concerns">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BUTTONS -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" data-prev="admission-section">
+                            Back to Admission
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Save &amp; Go to Medication Log
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+        <!-- ========== MEDICATION CARD ========== -->
+        <div class="card">
+            <section id="meds-section" class="tab-section">
+                <h3 class="section-title">Medication Administration Log</h3>
+                <p class="section-sub">
+                    Document medications administered to the patient. One medication entry per submission.
+                </p>
+
+                <form id="meds-form" method="POST" action="save_record.php">
+                    <input type="hidden" name="form_type" value="meds">
+
+                    <!-- PATIENT INFORMATION -->
+                    <div class="section">
+                        <h3 class="section-title">Patient Information</h3>
+                        <div class="grid-auto-220">
+                            <div class="field">
+                                <label for="med_patient_name">Patient Name</label>
+                                <input id="med_patient_name" name="med_patient_name" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label for="med_patient_id">Patient ID / Hospital No.</label>
+                                <input id="med_patient_id" name="med_patient_id" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label for="med_age">Age</label>
+                                <input id="med_age" name="med_age" type="number" min="0" required>
+                            </div>
+                            <div class="field">
+                                <label for="med_date">Date</label>
+                                <input id="med_date" name="med_date" type="date" required>
+                            </div>
+                            <div class="field">
+                                <label for="med_allergies">Allergies</label>
+                                <input id="med_allergies" name="med_allergies" type="text" placeholder="e.g. NKDA, penicillin allergy" required>
+                            </div>
+                            <div class="field">
+                                <label for="med_diagnosis">Diagnosis / Reason for Admission</label>
+                                <input id="med_diagnosis" name="med_diagnosis" type="text" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MEDICATION ENTRY -->
+                    <div class="section">
+                        <h3 class="section-title">Medication Details</h3>
+                        <div class="grid-auto-190">
+                            <div class="field">
+                                <label for="med_time">Time Administered</label>
+                                <input id="med_time" name="med_time" type="time" required>
+                            </div>
+                            <div class="field">
+                                <label for="med_name">Medication Name</label>
+                                <input id="med_name" name="med_name" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label for="med_strength">Medication Strength / Form</label>
+                                <input id="med_strength" name="med_strength" type="text" placeholder="e.g. 500 mg tablet" required>
+                            </div>
+                            <div class="field">
+                                <label for="med_dose">Dosage</label>
+                                <input id="med_dose" name="med_dose" type="text" placeholder="e.g. 1 tablet" required>
+                            </div>
+                            <div class="field">
+                                <label for="med_route">Route</label>
+                                <select id="med_route" name="med_route" required>
+                                    <option value="">--Select--</option>
+                                    <option value="Oral">Oral</option>
+                                    <option value="IV">Intravenous (IV)</option>
+                                    <option value="IM">Intramuscular (IM)</option>
+                                    <option value="SC">Subcutaneous (SC)</option>
+                                    <option value="Topical">Topical</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="med_frequency">Frequency</label>
+                                <input id="med_frequency" name="med_frequency" type="text" placeholder="e.g. q8h">
+                            </div>
+                            <div class="field">
+                                <label for="med_indication">Indication / Purpose</label>
+                                <input id="med_indication" name="med_indication" type="text" placeholder="e.g. for fever, for pain" required>
+                            </div>
+                            <div class="field">
+                                <label for="med_status">Medication Status</label>
+                                <select id="med_status" name="med_status" required>
+                                    <option value="">--Select--</option>
+                                    <option value="Given">Given</option>
+                                    <option value="Refused">Refused</option>
+                                    <option value="Delayed">Delayed</option>
+                                    <option value="Not Given">Not Given</option>
+                                </select>
+                            </div>
+                            <div class="field">
+                                <label for="med_given_by">Administered By</label>
+                                <input id="med_given_by" name="med_given_by" type="text" placeholder="Nurse's name / initials" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NOTES -->
+                    <div class="section">
+                        <h3 class="section-title">Response & Notes</h3>
+                        <div class="grid-auto-220">
+                            <div class="field">
+                                <label for="med_adverse">Adverse Effects Observed</label>
+                                <textarea id="med_adverse" name="med_adverse" placeholder="e.g. none, rash, dizziness, nausea"></textarea>
+                            </div>
+                            <div class="field">
+                                <label for="med_response">Response / Post-assessment</label>
+                                <textarea id="med_response" name="med_response" placeholder="e.g. pain decreased from 8/10 to 3/10"></textarea>
+                            </div>
+                            <div class="field">
+                                <label for="med_notes">Nurse Notes</label>
+                                <textarea id="med_notes" name="med_notes" placeholder="Additional observations or relevant notes"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BUTTONS -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" data-prev="vitals-section">
+                            Back to Vital Signs
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Final Submit
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+
+    </div><!-- /app-wrapper -->
+</div><!-- /page-wrap -->
+
+<script>
+    // ===== LOGIN HANDLING =====
+    const loginForm = document.getElementById('login-form');
+    const loginCard = document.getElementById('login-card');
+    const appWrapper = document.getElementById('app-wrapper');
+
+    loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        if (username === 'nurse' && password === '1234') {
+            loginCard.style.display = 'none';
+            appWrapper.style.display = 'block';
+        } else {
+            alert('Invalid username or password.');
+        }
+    });
+
+    // ===== TAB SWITCHING =====
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabSections = document.querySelectorAll('.tab-section');
+
+    function showSection(id) {
+        tabSections.forEach(sec => sec.classList.remove('active'));
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+
+        const section = document.getElementById(id);
+        if (section) section.classList.add('active');
+
+        const activeBtn = document.querySelector(`.tab-btn[data-target="${id}"]`);
+        if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-target');
+            showSection(target);
+        });
+    });
+
+    // Step flow: submit → next tab
+    const admissionForm = document.getElementById('admission-form');
+    const vitalsForm = document.getElementById('vitals-form');
+    const medsForm = document.getElementById('meds-form');
+
+    admissionForm.addEventListener('submit', function () {
+        setTimeout(() => showSection('vitals-section'), 100);
+    });
+
+    vitalsForm.addEventListener('submit', function () {
+        setTimeout(() => showSection('meds-section'), 100);
+    });
+
+    medsForm.addEventListener('submit', function () {
+        setTimeout(() => alert('Form flow complete! Check database tables for saved records.'), 200);
+    });
+
+    // BACK buttons
+    document.querySelectorAll('[data-prev]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const prevId = btn.getAttribute('data-prev');
+            showSection(prevId);
+        });
+    });
+
+    // ===== TRAUMA TOGGLE (Admission) =====
+    const traumaSelect = document.getElementById('trauma_case');
+    const traumaBox = document.getElementById('trauma-details');
+    if (traumaSelect && traumaBox) {
+        traumaSelect.addEventListener('change', () => {
+            traumaBox.style.display = traumaSelect.value === '1' ? 'block' : 'none';
+        });
+    }
+
+    // ===== AUTO AGE (Admission: DOB → Age) =====
+    const dobInput = document.getElementById('dob');
+    const ageInput = document.getElementById('age');
+
+    function updateAge() {
+        if (!dobInput || !ageInput || !dobInput.value) return;
+
+        const today = new Date();
+        const dobDate = new Date(dobInput.value);
+
+        if (isNaN(dobDate.getTime())) {
+            ageInput.value = '';
+            return;
+        }
+
+        let age = today.getFullYear() - dobDate.getFullYear();
+        const m = today.getMonth() - dobDate.getMonth();
+
+        if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
+            age--;
+        }
+
+        ageInput.value = age >= 0 ? age : '';
+    }
+
+    if (dobInput) {
+        dobInput.addEventListener('change', updateAge);
+        dobInput.addEventListener('input', updateAge);
+    }
+
+    // ===== VITALS: GCS AUTO-CALC =====
+    const gcsE = document.getElementById('gcs_e');
+    const gcsV = document.getElementById('gcs_v');
+    const gcsM = document.getElementById('gcs_m');
+    const gcsTotal = document.getElementById('gcs_total');
+
+    function updateGCS() {
+        const e = parseInt(gcsE.value) || 0;
+        const v = parseInt(gcsV.value) || 0;
+        const m = parseInt(gcsM.value) || 0;
+        const total = e + v + m;
+        gcsTotal.value = total > 0 ? total : '';
+    }
+
+    [gcsE, gcsV, gcsM].forEach(input => {
+        input.addEventListener('input', updateGCS);
+    });
+
+    // ===== VITALS: BMI AUTO-CALC =====
+    const weightInput = document.getElementById('weight');
+    const heightInput = document.getElementById('height');
+    const bmiInput = document.getElementById('bmi');
+    const bmiCategoryInput = document.getElementById('bmi_category');
+
+    function updateBMI() {
+        const w = parseFloat(weightInput.value);
+        const h = parseFloat(heightInput.value);
+
+        if (!isNaN(w) && !isNaN(h) && h > 0) {
+            const hMeters = h / 100;
+            const bmi = w / (hMeters * hMeters);
+            const bmiRounded = Math.round(bmi * 10) / 10;
+            bmiInput.value = bmiRounded;
+
+            let category = '';
+            if (bmiRounded < 18.5) category = 'Underweight';
+            else if (bmiRounded < 25) category = 'Normal';
+            else if (bmiRounded < 30) category = 'Overweight';
+            else category = 'Obese';
+
+            bmiCategoryInput.value = category;
+        } else {
+            bmiInput.value = '';
+            bmiCategoryInput.value = '';
+        }
+    }
+
+    [weightInput, heightInput].forEach(input => {
+        input.addEventListener('input', updateBMI);
+    });
+</script>
+
+</body>
+</html>
